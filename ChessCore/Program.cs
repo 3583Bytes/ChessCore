@@ -3,6 +3,7 @@ using ChessEngine.Engine;
 
 class Program
 {
+
 	static void Main(string[] args)
 	{
 		RunEngine();
@@ -10,7 +11,11 @@ class Program
 
 	private static void RunEngine()
 	{
+		bool ShowBoard = false;
+
 		var engine = new Engine();
+
+
 
 		Console.WriteLine("Chess Core");
 		Console.WriteLine("Created by Adam Berent");
@@ -26,7 +31,10 @@ class Program
 		{
 			try
 			{
-				//DrawBoard(engine);
+				if (ShowBoard)
+				{
+					DrawBoard(engine);
+				}
 
 				if (engine.WhoseMove != engine.HumanPlayer)
 				{
@@ -62,6 +70,8 @@ class Program
 					if (move == "show")
 					{
 						DrawBoard(engine);
+						ShowBoard = !ShowBoard;
+
 						continue;
 					}
 					if (move.StartsWith("edit"))
@@ -536,7 +546,7 @@ class Program
 
 	private static void DrawBoard(Engine engine)
 	{
-		Console.Clear();
+		//Console.Clear();
 
 		for (byte i = 0; i < 64; i++)
 		{
