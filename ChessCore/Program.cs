@@ -69,7 +69,6 @@ class Program
 					}
 					if (move == "show")
 					{
-						DrawBoard(engine);
 						ShowBoard = !ShowBoard;
 
 						continue;
