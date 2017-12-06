@@ -272,13 +272,7 @@ namespace ChessEngine.Engine
                 if (move.StartingFEN.Contains(boardFen))
                 {
                     int index = 0;
-/*
-                    if (move.Moves.Count > 1)
-                    {
-                        Random random = new Random(DateTime.Now.Second);
-                        index = random.Next(move.Moves.Count - 1);
-                    }
-*/
+
                     bestMove = move.Moves[index];
                     return true;
                 }
@@ -648,12 +642,12 @@ namespace ChessEngine.Engine
                 }
             }
 
-            index = GetBoardIndex(destinationColumn, destinationRow);
+            /*index = GetBoardIndex(destinationColumn, destinationRow);
 
             if (index == ChessBoard.EnPassantPosition && ChessBoard.EnPassantPosition > 0)
             {
                 return true;
-            }
+            }*/
 
             return false;
         }

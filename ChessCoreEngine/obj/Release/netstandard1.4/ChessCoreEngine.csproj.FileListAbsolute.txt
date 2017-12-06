@@ -1,7 +1,0 @@
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/bin/Release/netstandard1.4/ChessCoreEngine.deps.json
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/bin/Release/netstandard1.4/ChessCoreEngine.dll
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/bin/Release/netstandard1.4/ChessCoreEngine.pdb
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/obj/Release/netstandard1.4/ChessCoreEngine.AssemblyInfo.cs
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/obj/Release/netstandard1.4/ChessCoreEngine.dll
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/obj/Release/netstandard1.4/ChessCoreEngine.pdb
-/Users/Adam/Documents/Xamarin/ChessCore/ChessCoreEngine/obj/Release/netstandard1.4/ChessCoreEngine.csprojResolveAssemblyReference.cache
