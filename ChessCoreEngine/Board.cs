@@ -748,9 +748,9 @@ namespace ChessEngine.Engine
             if (piece.PieceColor == ChessPieceColor.Black)
             {
                 board.MoveCount++;
-                //Add One to FiftyMoveCount to check for tie.
-                board.FiftyMove++;
             }
+            //Add One to FiftyMoveCount to check for tie.
+            board.FiftyMove++;
 
             //En Passant
             if (board.EnPassantPosition > 0)
@@ -980,7 +980,7 @@ namespace ChessEngine.Engine
             if (!boardOnly)
             {
                 output += board.FiftyMove + " ";
-                output += board.MoveCount + 1;
+                output += board.MoveCount;
             }
             return output.Trim();
         }

@@ -579,6 +579,13 @@ namespace ChessEngine.Engine
             return 0;
         }
 
+		public bool IsValidMoveAN(string move)
+		{
+			byte sourceColumn=0, sourceRow=0, destinationColumn=0, destinationRow=0;
+			MoveContent.ParseAN(move, ref sourceColumn, ref sourceRow, ref destinationColumn, ref destinationRow);
+			return IsValidMove(sourceColumn, sourceRow, destinationColumn, destinationRow);
+		}
+
         public bool IsValidMove(byte srcPosition, byte dstPosition)
         {
             if (ChessBoard == null)
@@ -862,6 +869,13 @@ namespace ChessEngine.Engine
             }
         }
 
+		public bool MovePieceAN(string move)
+		{
+			byte sourceColumn=0, sourceRow=0, destinationColumn=0, destinationRow=0;
+			MoveContent.ParseAN(move, ref sourceColumn, ref sourceRow, ref destinationColumn, ref destinationRow);
+			return MovePiece(sourceColumn, sourceRow, destinationColumn, destinationRow);
+		}
+
         public bool MovePiece(byte sourceColumn, byte sourceRow, byte destinationColumn, byte destinationRow)
         {
             byte srcPosition = (byte)(sourceColumn + (sourceRow * 8));
@@ -960,9 +974,9 @@ namespace ChessEngine.Engine
 
         #region Test
 
-        public Test.PerformanceResult RunPerformanceTest()
+        public PerformanceTest.PerformanceResult RunPerformanceTest(int depth=5)
         {
-            return Test.RunPerfTest(5, ChessBoard);
+            return PerformanceTest.RunPerfTest(depth, ChessBoard);
         }
 
         #endregion

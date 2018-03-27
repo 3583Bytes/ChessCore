@@ -187,6 +187,43 @@ namespace ChessEngine.Engine
             }
         }
 
+		public static bool ParseAN(string move, ref byte sourceColumn, ref byte sourceRow, ref byte destinationColumn, ref byte destinationRow)
+		{
+			if (move.Length != 4) return false;
+			sourceColumn = (byte)GetIntFromColumn(move[0]);
+			sourceRow = (byte)(8 - int.Parse(""+move[1]));
+			destinationColumn = (byte)GetIntFromColumn(move[2]);
+			destinationRow = (byte)(8 - int.Parse(""+move[3]));
+			return true;
+		}
+
+		public string GetPureCoordinateNotation()
+		{
+            var srcCol = (byte) (MovingPiecePrimary.SrcPosition%8);
+            var srcRow = (byte)(8 - (MovingPiecePrimary.SrcPosition / 8));
+            var dstCol = (byte) (MovingPiecePrimary.DstPosition%8);
+            var dstRow = (byte) (8 - (MovingPiecePrimary.DstPosition/8));
+			
+			string result = ""+(char)('a'+srcCol)+(srcRow) + (char)('a'+dstCol)+(dstRow);
+            if (PawnPromotedTo == ChessPieceType.Queen)
+            {
+                result += "=Q";
+            }
+            else if (PawnPromotedTo == ChessPieceType.Rook)
+            {
+                result += "=R";
+            }
+            else if (PawnPromotedTo == ChessPieceType.Bishop)
+            {
+                result += "=B";
+            }
+            else if (PawnPromotedTo == ChessPieceType.Knight)
+            {
+                result += "=N";
+            }
+			return result;
+		}
+		
         public new string ToString()
         {
             if (!String.IsNullOrEmpty(PgnMove))
