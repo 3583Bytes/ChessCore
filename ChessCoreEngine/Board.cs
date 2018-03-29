@@ -897,6 +897,11 @@ namespace ChessEngine.Engine
                 }
             }
 
+            if (output.EndsWith("/"))
+            {
+                output = output.TrimEnd('/');
+            }
+
             if (board.WhoseMove == ChessPieceColor.White)
             {
                 output += " w ";
@@ -906,7 +911,7 @@ namespace ChessEngine.Engine
                 output += " b ";
             }
 
-            string spacer = "";
+			string castle = "-";
 
             if (board.WhiteCastled == false)
             {
@@ -918,16 +923,14 @@ namespace ChessEngine.Engine
                         {
                             if (board.Squares[63].Piece.Moved == false)
                             {
-                                output += "K";
-                                spacer = " ";
+                                castle += "K";
                             }
                         }
                         if (board.Squares[56].Piece != null)
                         {
                             if (board.Squares[56].Piece.Moved == false)
                             {
-                                output += "Q";
-                                spacer = " ";
+                                castle += "Q";
                             }
                         }
                     }
@@ -944,37 +947,33 @@ namespace ChessEngine.Engine
                         {
                             if (board.Squares[7].Piece.Moved == false)
                             {
-                                output += "k";
-                                spacer = " ";
+                                castle += "k";
                             }
                         }
                         if (board.Squares[0].Piece != null)
                         {
                             if (board.Squares[0].Piece.Moved == false)
                             {
-                                output += "q";
-                                spacer = " ";
+                                castle += "q";
                             }
                         }
                     }
                 }
-
-                
             }
-
-            if (output.EndsWith("/"))
-            {
-                output.TrimEnd('/');
-            }
-
+			
+			if (castle != "-")
+			{
+				castle = castle.TrimStart('-');
+			}
+			output += castle;
 
             if (board.EnPassantPosition != 0)
             {
-                output += spacer + GetColumnFromByte((byte)(board.EnPassantPosition % 8)) + "" + (byte)(8 - (byte)(board.EnPassantPosition / 8)) + " ";
+                output += " " + GetColumnFromByte((byte)(board.EnPassantPosition % 8)) + "" + (byte)(8 - (byte)(board.EnPassantPosition / 8)) + " ";
             }
             else
             {
-                output += spacer + "- ";
+                output += " - ";
             }
 
             if (!boardOnly)
