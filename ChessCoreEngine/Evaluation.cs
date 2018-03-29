@@ -257,7 +257,7 @@ namespace ChessEngine.Engine
             {
                 return;
             }
-            if (board.FiftyMove >= 50)
+            if (board.HalfMoveClock >= 100)
             {
                 return;
             }

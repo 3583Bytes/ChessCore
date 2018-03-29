@@ -157,7 +157,7 @@ namespace ChessEngine.Engine
         {
              get
              {
-                 if (ChessBoard.FiftyMove >= 50)
+                 if (ChessBoard.HalfMoveClock >= 100)
                  {
                      return true;
                  }
@@ -346,9 +346,9 @@ namespace ChessEngine.Engine
             return ChessBoard.RepeatedMove;
         }
 
-        public byte GetFiftyMoveCount()
+        public byte GetHalfMoveClock()
         {
-            return ChessBoard.FiftyMove;
+            return ChessBoard.HalfMoveClock;
         }
 
         public Stack<MoveContent> GetMoveHistory()
@@ -669,7 +669,7 @@ namespace ChessEngine.Engine
             {
                 return true;
             }
-            if (ChessBoard.FiftyMove >= 50)
+            if (ChessBoard.HalfMoveClock >= 100)
             {
                 return true;
             }
@@ -692,7 +692,7 @@ namespace ChessEngine.Engine
                 return true;
             }
             
-            if (ChessBoard.FiftyMove >= 50)
+            if (ChessBoard.HalfMoveClock >= 100)
             {
                 return true;
             }
@@ -912,10 +912,10 @@ namespace ChessEngine.Engine
            
             //If there is no playbook move search for the best move
             if (FindPlayBookMove(ref bestMove, ChessBoard, OpeningBook) == false
-                || ChessBoard.FiftyMove > 45 || ChessBoard.RepeatedMove >= 2)
+                || ChessBoard.HalfMoveClock > 90 || ChessBoard.RepeatedMove >= 2)
             {
                 if (FindPlayBookMove(ref bestMove, ChessBoard, CurrentGameBook) == false ||
-                    ChessBoard.FiftyMove > 45 || ChessBoard.RepeatedMove >= 2)
+                    ChessBoard.HalfMoveClock > 90 || ChessBoard.RepeatedMove >= 2)
                 {
 					bestMove = Search.IterativeSearch(ChessBoard, PlyDepthSearched, ref NodesSearched, ref NodesQuiessence, ref pvLine, ref PlyDepthReached, ref RootMovesSearched, CurrentGameBook);
                 }

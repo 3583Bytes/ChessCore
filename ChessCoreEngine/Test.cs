@@ -14,6 +14,7 @@ namespace ChessEngine.Engine
 			TestNotation();
 			TestValidMoves();
 			TestSimpleMoves();
+			Test50MoveRule();
 			TestAI();
 		}
 		
@@ -141,6 +142,26 @@ namespace ChessEngine.Engine
 
 			engine.MovePieceAN("g1f3");
 			Assert.AreEqual("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2", engine.FEN);
+		}
+
+		[Test]
+		public void Test50MoveRule() {
+			var engine = new Engine("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			for (var i=0; i<24; i++) {
+				engine.MovePieceAN("b1c3");
+				engine.MovePieceAN("b8c6");
+				engine.MovePieceAN("c3b1");
+				engine.MovePieceAN("c6b8");
+				Assert.IsFalse(engine.FiftyMove);
+			}
+			engine.MovePieceAN("b1c3");
+			Assert.IsFalse(engine.FiftyMove);
+			engine.MovePieceAN("b8c6");
+			Assert.IsFalse(engine.FiftyMove);
+			engine.MovePieceAN("c3b1");
+			Assert.IsFalse(engine.FiftyMove);
+			engine.MovePieceAN("c6b8");
+			Assert.IsTrue(engine.FiftyMove);
 		}
 		
 		[Test]
