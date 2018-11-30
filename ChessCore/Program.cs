@@ -19,7 +19,7 @@ class Program
 
 		Console.WriteLine("Chess Core");
 		Console.WriteLine("Created by Adam Berent");
-		Console.WriteLine("Version: 1.0.0");
+		Console.WriteLine("Version: 1.0.1");
 		Console.WriteLine("");
 		Console.WriteLine("Type quit to exit");
 		Console.WriteLine("Type show to show board");
