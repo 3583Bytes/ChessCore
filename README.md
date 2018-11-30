@@ -1,3 +1,5 @@
+This library is identical to the original it was forked from, with the exception of a bugfix made to Engine.AiPonderMove() to prevent the engine from prematurely declaring checkmate against the computer.
+
 # ChessCore
 Chess Engine Implemented in .net core
 
