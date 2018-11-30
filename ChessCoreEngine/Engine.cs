@@ -157,7 +157,7 @@ namespace ChessEngine.Engine
         {
              get
              {
-                 if (ChessBoard.FiftyMove >= 50)
+                 if (ChessBoard.HalfMoveClock >= 100)
                  {
                      return true;
                  }
@@ -346,9 +346,9 @@ namespace ChessEngine.Engine
             return ChessBoard.RepeatedMove;
         }
 
-        public byte GetFiftyMoveCount()
+        public byte GetHalfMoveClock()
         {
-            return ChessBoard.FiftyMove;
+            return ChessBoard.HalfMoveClock;
         }
 
         public Stack<MoveContent> GetMoveHistory()
@@ -579,6 +579,13 @@ namespace ChessEngine.Engine
             return 0;
         }
 
+		public bool IsValidMoveAN(string move)
+		{
+			byte sourceColumn=0, sourceRow=0, destinationColumn=0, destinationRow=0;
+			MoveContent.ParseAN(move, ref sourceColumn, ref sourceRow, ref destinationColumn, ref destinationRow);
+			return IsValidMove(sourceColumn, sourceRow, destinationColumn, destinationRow);
+		}
+
         public bool IsValidMove(byte srcPosition, byte dstPosition)
         {
             if (ChessBoard == null)
@@ -662,7 +669,7 @@ namespace ChessEngine.Engine
             {
                 return true;
             }
-            if (ChessBoard.FiftyMove >= 50)
+            if (ChessBoard.HalfMoveClock >= 100)
             {
                 return true;
             }
@@ -685,7 +692,7 @@ namespace ChessEngine.Engine
                 return true;
             }
             
-            if (ChessBoard.FiftyMove >= 50)
+            if (ChessBoard.HalfMoveClock >= 100)
             {
                 return true;
             }
@@ -862,6 +869,13 @@ namespace ChessEngine.Engine
             }
         }
 
+		public bool MovePieceAN(string move)
+		{
+			byte sourceColumn=0, sourceRow=0, destinationColumn=0, destinationRow=0;
+			MoveContent.ParseAN(move, ref sourceColumn, ref sourceRow, ref destinationColumn, ref destinationRow);
+			return MovePiece(sourceColumn, sourceRow, destinationColumn, destinationRow);
+		}
+
         public bool MovePiece(byte sourceColumn, byte sourceRow, byte destinationColumn, byte destinationRow)
         {
             byte srcPosition = (byte)(sourceColumn + (sourceRow * 8));
@@ -898,10 +912,10 @@ namespace ChessEngine.Engine
            
             //If there is no playbook move search for the best move
             if (FindPlayBookMove(ref bestMove, ChessBoard, OpeningBook) == false
-                || ChessBoard.FiftyMove > 45 || ChessBoard.RepeatedMove >= 2)
+                || ChessBoard.HalfMoveClock > 90 || ChessBoard.RepeatedMove >= 2)
             {
                 if (FindPlayBookMove(ref bestMove, ChessBoard, CurrentGameBook) == false ||
-                    ChessBoard.FiftyMove > 45 || ChessBoard.RepeatedMove >= 2)
+                    ChessBoard.HalfMoveClock > 90 || ChessBoard.RepeatedMove >= 2)
                 {
 					bestMove = Search.IterativeSearch(ChessBoard, PlyDepthSearched, ref NodesSearched, ref NodesQuiessence, ref pvLine, ref PlyDepthReached, ref RootMovesSearched, CurrentGameBook);
                 }
@@ -960,9 +974,9 @@ namespace ChessEngine.Engine
 
         #region Test
 
-        public Test.PerformanceResult RunPerformanceTest()
+        public PerformanceTest.PerformanceResult RunPerformanceTest(int depth=5)
         {
-            return Test.RunPerfTest(5, ChessBoard);
+            return PerformanceTest.RunPerfTest(depth, ChessBoard);
         }
 
         #endregion

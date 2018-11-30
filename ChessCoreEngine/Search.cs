@@ -207,7 +207,7 @@ namespace ChessEngine.Engine
         {
             nodesSearched++;
 
-            if (examineBoard.FiftyMove >= 50 || examineBoard.RepeatedMove >= 3)
+            if (examineBoard.HalfMoveClock >= 100 || examineBoard.RepeatedMove >= 3)
                 return 0;
 
             //End Main Search with Quiescence

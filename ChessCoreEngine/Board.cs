@@ -21,7 +21,7 @@ namespace ChessEngine.Engine
         internal bool WhiteMate;
         internal bool StaleMate;
 
-        internal byte FiftyMove;
+        internal byte HalfMoveClock;
         internal byte RepeatedMove;
 
         internal bool BlackCastled;
@@ -365,39 +365,39 @@ namespace ChessEngine.Engine
                     }
                     else if (c == '1' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 1);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 1);
                     }
                     else if (c == '2' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 2);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 2);
                     }
                     else if (c == '3' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 3);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 3);
                     }
                     else if (c == '4' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 4);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 4);
                     }
                     else if (c == '5' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 5);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 5);
                     }
                     else if (c == '6' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 6);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 6);
                     }
                     else if (c == '7' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 7);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 7);
                     }
                     else if (c == '8' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 8);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 8);
                     }
                     else if (c == '9' && spacers == 4)
                     {
-                        FiftyMove = (byte)((FiftyMove * 10) + 9);
+                        HalfMoveClock = (byte)((HalfMoveClock * 10) + 9);
                     }
                     else if (c == '0' && spacers == 4)
                     {
@@ -523,7 +523,7 @@ namespace ChessEngine.Engine
 
             EndGamePhase = board.EndGamePhase;
 
-            FiftyMove = board.FiftyMove;
+            HalfMoveClock = board.HalfMoveClock;
             RepeatedMove = board.RepeatedMove;
            
             WhiteCastled = board.WhiteCastled;
@@ -585,8 +585,8 @@ namespace ChessEngine.Engine
             //Record En Passant if Pawn Moving
             if (pcType == ChessPieceType.Pawn)
             {
-                //Reset FiftyMoveCount if pawn moved
-                board.FiftyMove = 0;
+                //Reset HalfMoveClockCount if pawn moved
+                board.HalfMoveClock = 0;
 
                 int difference = srcPosition - dstPosition; 
 
@@ -630,8 +630,8 @@ namespace ChessEngine.Engine
 
             board.Squares[dstPosition].Piece = null;
                     
-            //Reset FiftyMoveCount if capture
-            board.FiftyMove = 0;
+            //Reset HalfMoveClockCount if capture
+            board.HalfMoveClock = 0;
 
             return true;
 
@@ -722,7 +722,7 @@ namespace ChessEngine.Engine
             clonedBoard.EndGamePhase = EndGamePhase;
             clonedBoard.WhoseMove = WhoseMove;
             clonedBoard.MoveCount = MoveCount;
-            clonedBoard.FiftyMove = FiftyMove;
+            clonedBoard.HalfMoveClock = HalfMoveClock;
             clonedBoard.ZobristHash = ZobristHash;
             clonedBoard.BlackCastled = BlackCastled;
             clonedBoard.WhiteCastled = WhiteCastled;
@@ -748,9 +748,9 @@ namespace ChessEngine.Engine
             if (piece.PieceColor == ChessPieceColor.Black)
             {
                 board.MoveCount++;
-                //Add One to FiftyMoveCount to check for tie.
-                board.FiftyMove++;
             }
+            //Add One to HalfMoveClockCount to check for 50 move limit.
+            board.HalfMoveClock++;
 
             //En Passant
             if (board.EnPassantPosition > 0)
@@ -766,7 +766,7 @@ namespace ChessEngine.Engine
                 {
                     board.LastMove.TakenPiece = new PieceTaken(sqr.Piece.PieceColor, sqr.Piece.PieceType,
                                                                sqr.Piece.Moved, dstPosition);
-                    board.FiftyMove = 0;
+                    board.HalfMoveClock = 0;
                 }
                 else
                 {
@@ -792,7 +792,7 @@ namespace ChessEngine.Engine
             //Record En Passant if Pawn Moving
             if (piece.PieceType == ChessPieceType.Pawn)
             {
-               board.FiftyMove = 0;
+               board.HalfMoveClock = 0;
                RecordEnPassant(piece.PieceColor, piece.PieceType, board, srcPosition, dstPosition);
             }
 
@@ -810,7 +810,7 @@ namespace ChessEngine.Engine
                 board.LastMove.PawnPromotedTo = ChessPieceType.None;
             }
 
-            if ( board.FiftyMove >= 50)
+            if ( board.HalfMoveClock >= 100)
             {
                 board.StaleMate = true;
             }
@@ -897,6 +897,11 @@ namespace ChessEngine.Engine
                 }
             }
 
+            if (output.EndsWith("/"))
+            {
+                output = output.TrimEnd('/');
+            }
+
             if (board.WhoseMove == ChessPieceColor.White)
             {
                 output += " w ";
@@ -906,7 +911,7 @@ namespace ChessEngine.Engine
                 output += " b ";
             }
 
-            string spacer = "";
+			string castle = "-";
 
             if (board.WhiteCastled == false)
             {
@@ -918,16 +923,14 @@ namespace ChessEngine.Engine
                         {
                             if (board.Squares[63].Piece.Moved == false)
                             {
-                                output += "K";
-                                spacer = " ";
+                                castle += "K";
                             }
                         }
                         if (board.Squares[56].Piece != null)
                         {
                             if (board.Squares[56].Piece.Moved == false)
                             {
-                                output += "Q";
-                                spacer = " ";
+                                castle += "Q";
                             }
                         }
                     }
@@ -944,43 +947,39 @@ namespace ChessEngine.Engine
                         {
                             if (board.Squares[7].Piece.Moved == false)
                             {
-                                output += "k";
-                                spacer = " ";
+                                castle += "k";
                             }
                         }
                         if (board.Squares[0].Piece != null)
                         {
                             if (board.Squares[0].Piece.Moved == false)
                             {
-                                output += "q";
-                                spacer = " ";
+                                castle += "q";
                             }
                         }
                     }
                 }
-
-                
             }
-
-            if (output.EndsWith("/"))
-            {
-                output.TrimEnd('/');
-            }
-
+			
+			if (castle != "-")
+			{
+				castle = castle.TrimStart('-');
+			}
+			output += castle;
 
             if (board.EnPassantPosition != 0)
             {
-                output += spacer + GetColumnFromByte((byte)(board.EnPassantPosition % 8)) + "" + (byte)(8 - (byte)(board.EnPassantPosition / 8)) + " ";
+                output += " " + GetColumnFromByte((byte)(board.EnPassantPosition % 8)) + "" + (byte)(8 - (byte)(board.EnPassantPosition / 8)) + " ";
             }
             else
             {
-                output += spacer + "- ";
+                output += " - ";
             }
 
             if (!boardOnly)
             {
-                output += board.FiftyMove + " ";
-                output += board.MoveCount + 1;
+                output += board.HalfMoveClock + " ";
+                output += board.MoveCount;
             }
             return output.Trim();
         }
