@@ -883,6 +883,31 @@ namespace ChessEngine.Engine
         public void AiPonderMove()
         {
             Thinking = true;
+
+			/* Fix added to prevent premature declaration of checkmate against computer's king.
+			 * 
+			 * The original version only looked at squares that were available for the black king to move to PRIOR to white's latest move.
+			 * So... suppose you had a situation like this:
+			 *	2QR1r1k/5ppp/8/2N5/8/8/8/K7 w - - 0 1
+			 *  ... and moved the white queen from G5 to H5.
+			 *	At the start of white's move, the black king has 5 possible moves... 4 of which are attackable by white, and noted by
+			 *	GenerateValidMoves in WhiteAttackBoard[]. When AiPonderMove executes, it immediately eliminates those 4 squares as options
+			 *	for the black king, even though 2 of them are now safe because no white piece can attack them. However, square 7 is now
+			 *	directly in the queen's attack path, so it's eliminated as an option as well. Boom, premature checkmate... game over.
+			 *	
+			 *	The time it takes to regenerate the valid moves is nontrivial under Android. To improve performance, 
+			 *	my fix regenerates the valid moves ONLY when it might prevent a game-ending premature declaration
+			 *	of checkmate, unless the difficulty is set to Hard or VeryHard (in which case it runs every time). 
+			 *	Even a novice player is likely to get confused if the engine declares checkmate for no apparent reason, 
+			 *	but the bug's more insidious manifestations at the two easiest difficulty levels help to make the computer a tiny bit easier 
+			 *	to beat by giving it a blind spot that a player can exploit, the same way HUMAN opponents have blind spots and weaknesses of their own.
+			 */
+			if (ChessBoard.BlackMate || ChessBoard.WhiteMate || (GameDifficulty == Difficulty.VeryHard) || (GameDifficulty == Difficulty.Hard)) {
+				ChessBoard.BlackMate = false;
+				ChessBoard.WhiteMate = false;
+				PieceValidMoves.GenerateValidMoves(ChessBoard);
+			}
+
             NodesSearched = 0;
 			
 			var resultBoards = new ResultBoards();
