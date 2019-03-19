@@ -14,11 +14,11 @@ The documentation & tutorial on how to build a chess engine can be accessed in t
 
 PDF
 
-http://www.adamberent.com/documents/GuideToProgrammingChessEngine.pdf
+http://www.adamberent.com/wp-content/uploads/2019/02/GuideToProgrammingChessEngine.pdf
 
 Website
 
-http://www.chessbin.com/
+http://adamberent.com/home/chess/computer-chess/
 
 
 
