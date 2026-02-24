@@ -5,6 +5,57 @@ Winboard/Xboard Compatible Chess Engine Written in C#/.NET Core.  ChessCore has 
 
 To Run type in: dotnet ChessCore.dll
 
+## Build
+
+```powershell
+dotnet build ChessCore.sln -nologo
+```
+
+## Testing
+
+The repository now includes a dedicated NUnit test project: `ChessCoreEngine.Tests`.
+
+### Run all tests
+
+This includes the depth-5 perft baseline and takes longer.
+
+```powershell
+dotnet test ChessCore.sln -nologo
+```
+
+### Run fast tests only
+
+This excludes slow tests (currently depth-5 perft).
+
+```powershell
+dotnet test ChessCore.sln -nologo --filter "TestCategory!=Slow"
+```
+
+### Perft baselines
+
+`PerftBaselineTests` validates move-generation against known start-position node counts:
+
+- Depth 1: `20`
+- Depth 2: `400`
+- Depth 3: `8902`
+- Depth 4: `197281`
+- Depth 5: `4865609` (`Slow` category)
+
+## CI Recommendation
+
+For pull requests, run fast validation:
+
+```powershell
+dotnet build ChessCore.sln -nologo
+dotnet test ChessCore.sln -nologo --filter "TestCategory!=Slow"
+```
+
+For scheduled/nightly runs, include full validation:
+
+```powershell
+dotnet test ChessCore.sln -nologo
+```
+
 
 # About
 

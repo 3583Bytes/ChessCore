@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace ChessEngine.Engine
+namespace ChessEngine.Engine // Reverted to original namespace
 {
-    public sealed class Engine
+    public sealed class Engine : IChessEngine // Implement interface
     {
         #region InternalMembers
 
@@ -889,6 +889,42 @@ namespace ChessEngine.Engine
             ChessBoard.Squares[index].Piece = new Piece(piece);
 
         }
+
+        #endregion
+
+        #region IChessEngine Implementation
+
+        public void SetPosition(string fenString)
+        {
+            InitiateBoard(fenString);
+        }
+
+        public string GetBestMove()
+        {
+            // AiPonderMove modifies the board, which GetBestMove shouldn't ideally do.
+            // A proper refactoring would separate the move generation from board modification.
+            // For now, we'll run AiPonderMove and return the last move found.
+            // This is a temporary solution to fulfill the interface contract.
+            AiPonderMove();
+            return LastMove.PgnMove;
+        }
+
+        public void MakeMove(string move)
+        {
+            MovePieceAN(move);
+        }
+
+        public string GetFen()
+        {
+            return FEN;
+        }
+
+        public double GetEvaluation()
+        {
+            return (double)EvaluateBoardScore();
+        }
+
+        // The existing public bool IsGameOver() method already fulfills the interface contract.
 
         #endregion
 
