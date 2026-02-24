@@ -41,6 +41,26 @@ dotnet test ChessCore.sln -nologo --filter "TestCategory!=Slow"
 - Depth 4: `197281`
 - Depth 5: `4865609` (`Slow` category)
 
+### Run perft tests only
+
+Fast perft set (depth 1-4):
+
+```powershell
+dotnet test ChessCoreEngine.Tests/ChessCoreEngine.Tests.csproj -nologo --filter "FullyQualifiedName~PerftBaselineTests&FullyQualifiedName~InitialPosition_PerftMatchesKnownCounts"
+```
+
+Depth-5 perft only:
+
+```powershell
+dotnet test ChessCoreEngine.Tests/ChessCoreEngine.Tests.csproj -nologo --filter "FullyQualifiedName~PerftBaselineTests&FullyQualifiedName~InitialPosition_PerftDepth5_MatchesKnownCount"
+```
+
+All perft tests:
+
+```powershell
+dotnet test ChessCoreEngine.Tests/ChessCoreEngine.Tests.csproj -nologo --filter "FullyQualifiedName~PerftBaselineTests"
+```
+
 ## CI Recommendation
 
 For pull requests, run fast validation:
