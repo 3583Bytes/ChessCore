@@ -200,6 +200,16 @@ namespace ChessEngine.Engine // Reverted to original namespace
         {
             ChessBoard = new Board(fen);
 
+            // A new position is a new game state: clear move/repetition history so
+            // SaveCurrentGameMove's duplicate-FEN scan doesn't pick up entries from
+            // prior `position` commands (UCI replays the full move list each time,
+            // which would otherwise inflate RepeatedMove and falsely trigger StaleMate).
+            MoveHistory = new Stack<MoveContent>();
+            CurrentGameBook = new List<OpeningMove>();
+            PreviousChessBoard = null;
+            UndoChessBoard = null;
+            UndoGameBook = null;
+
             if (!String.IsNullOrEmpty(fen))
             {
                 PieceValidMoves.GenerateValidMoves(ChessBoard);

@@ -76,7 +76,11 @@ namespace ChessEngine.Engine
 
             if (square.Piece.PieceColor == ChessPieceColor.Black)
             {
-                index = (byte)(63-position);
+                // Mirror rank only (XOR with 0b111000). `63 - position` rotates both axes,
+                // which happens to match today because every PST is file-symmetric — but
+                // the moment an asymmetric table is introduced (e.g., king-side vs queen-side
+                // shaping) the file-flip would silently invert it for Black.
+                index = (byte)(position ^ 56);
             }
 
             //Calculate Piece Values
@@ -194,9 +198,10 @@ namespace ChessEngine.Engine
             {
                 bishopCount++;
 
-                if (bishopCount >= 2)
+                if (bishopCount == 2)
                 {
-                    //2 Bishops receive a bonus
+                    //2 Bishops receive a bonus (fire exactly once on the pair-completing bishop;
+                    //a 3rd+ bishop from underpromotion must not stack further bonuses).
                     score += 10;
                 }
 
@@ -268,16 +273,11 @@ namespace ChessEngine.Engine
             {
                 return;
             }
-            if (board.BlackMate)
-            {
-                board.Score = 32767;
-                return;
-            }
-            if (board.WhiteMate)
-            {
-                board.Score = -32767;
-                return;
-            }
+            // Mate scoring lives in Search.AlphaBeta (depth-adjusted via ±depth so faster
+            // mates score higher). The static evaluator only ever sees boards whose mate
+            // flags have not been set (Search runs SearchForMate after eval, and the
+            // engine's MovePiece sets flags only after EvaluateBoardScore returns), so
+            // returning a ±32767 sentinel here was dead code.
             if (board.BlackCheck)
             {
                 board.Score += 70;
@@ -313,10 +313,6 @@ namespace ChessEngine.Engine
 
             byte blackKnightCount = 0;
             byte whiteKnightCount = 0;
-
-
-            byte knightCount = 0;
-
 
             Array.Clear(blackPawnCount, 0, 8);
             Array.Clear(whitePawnCount, 0, 8);
@@ -382,29 +378,21 @@ namespace ChessEngine.Engine
                    
                 }
 
-                if (square.Piece.PieceType == ChessPieceType.Knight)
-                {
-                    knightCount++;
+            }
 
-                    if (knightCount > 1)
-                    {
-                        insufficientMaterial = false;
-                    }
-                }
-
-                if ((blackBishopCount + whiteBishopCount) > 1)
-                {
-                    insufficientMaterial = false;
-                }
-                else if ((blackBishopCount + blackKnightCount) > 1)
-                {
-                    insufficientMaterial = false;
-                }
-                else if ((whiteBishopCount + whiteKnightCount) > 1)
-                {
-                    insufficientMaterial = false;
-                }
-
+            // Insufficient material to force mate (claim draw):
+            //   pawns/rooks/queens already clear the flag in EvaluatePieceScore.
+            //   What's left is K + minors. Force mate is impossible unless one side
+            //   has 2+ minors (covers K+B+N, K+B+B, K+N+N — the last is debatable
+            //   but matches the engine's prior behaviour of not claiming it as a draw).
+            //   That leaves: K vs K, K vs K+minor, and K+minor vs K+minor — all insufficient,
+            //   including KNvKN and KBvKB which the previous logic incorrectly flagged
+            //   as not-insufficient.
+            if (insufficientMaterial &&
+                (whiteBishopCount + whiteKnightCount > 1 ||
+                 blackBishopCount + blackKnightCount > 1))
+            {
+                insufficientMaterial = false;
             }
 
             if (insufficientMaterial)

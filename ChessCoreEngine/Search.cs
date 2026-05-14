@@ -100,10 +100,9 @@ namespace ChessEngine.Engine
 
                 int value = -AlphaBeta(pos, depth, -beta, -alpha, ref nodesSearched, ref nodesQuiessence, ref pvChild, false);
 
-                if (value >= 32767)
-                {
-                    return pos.LastMove;
-                }
+                // Don't short-circuit on the first mate: alpha-beta with depth-adjusted
+                // mate scores (see AlphaBeta:232) will naturally pick the shortest one
+                // because faster mates have higher scores.
 
                 if (examineBoard.RepeatedMove == 2)
                 {

@@ -3,6 +3,8 @@
 [Oo]bj/
 [Bb]uild/
 publish/
+#arena test gui
+arena/
 
 # Publish artifacts and packages
 *.nupkg
