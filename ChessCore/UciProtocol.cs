@@ -2,15 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using ChessEngine.Engine;
 
 namespace ChessCore
 {
     internal sealed class UciProtocol
     {
-        private const string EngineName = "ChessCore 1.1.0";
+        // Version is read from the assembly (set by <Version> in ChessCore.csproj) so the csproj
+        // is the single source of truth. .NET 8 appends "+<commit-sha>" to InformationalVersion
+        // when a .git folder is present — strip that so `id name` stays clean.
+        private static readonly string Version = ReadAssemblyVersion();
+        private static readonly string EngineName = "ChessCore " + Version;
         private const string EngineAuthor = "Adam Berent";
         private const string StartFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        private static string ReadAssemblyVersion()
+        {
+            var asm = typeof(UciProtocol).Assembly;
+            var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                       ?? asm.GetName().Version?.ToString()
+                       ?? "0.0.0";
+            var plus = info.IndexOf('+');
+            return plus < 0 ? info : info.Substring(0, plus);
+        }
 
         private readonly Engine _engine = new Engine();
 
@@ -380,7 +395,7 @@ namespace ChessCore
 
         private void HandleCompiler()
         {
-            Send("info string ChessCore " + EngineName.Substring("ChessCore ".Length));
+            Send("info string ChessCore " + Version);
             Send("info string .NET runtime: " + Environment.Version);
             Send("info string Framework: " + System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription);
             Send("info string OS: " + System.Runtime.InteropServices.RuntimeInformation.OSDescription);

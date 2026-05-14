@@ -48,7 +48,7 @@ dotnet publish ChessCore -c Release -r osx-x64   --self-contained -p:PublishSing
 The resulting binary lives at:
 
 ```
-ChessCore/bin/Release/net8.0/<rid>/publish/ChessCore[.exe]
+ChessCore/bin/Release/net10.0/<rid>/publish/ChessCore[.exe]
 ```
 
 (`<rid>` is `win-x64`, `linux-x64`, `osx-x64`, etc.) Copy this file somewhere stable — your `~/Engines/` folder or `C:\Engines\ChessCore\`, say — because the GUI will remember its path.
