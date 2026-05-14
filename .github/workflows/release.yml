@@ -79,23 +79,24 @@ jobs:
           ls -la publish/self-contained
           ls -la publish/framework-dependent
 
+          # Archive the published binary directly from its publish dir with a flat layout.
+          # Don't stage into the working directory — `ChessCore` collides with the project folder.
           pack() {
             local variant="$1"      # self-contained | framework-dependent
             local stem="ChessCore-${{ matrix.rid }}-${variant}"
-            local exe="publish/${variant}/ChessCore${{ matrix.ext }}"
-            test -f "$exe"  # fail fast if publish didn't produce a single file
-            cp "$exe" "ChessCore${{ matrix.ext }}"
+            local src="publish/${variant}/ChessCore${{ matrix.ext }}"
+            test -f "$src"  # fail fast if publish didn't produce a single file
 
             if [ "${{ matrix.archive }}" = "zip" ]; then
-              zip -9 "artifacts/${stem}.zip" "ChessCore${{ matrix.ext }}"
+              zip -j -9 "artifacts/${stem}.zip" "$src"            # -j = junk paths
             else
-              tar -czf "artifacts/${stem}.tar.gz" "ChessCore${{ matrix.ext }}"
+              tar -czf "artifacts/${stem}.tar.gz" -C "$(dirname "$src")" "$(basename "$src")"
             fi
-            rm "ChessCore${{ matrix.ext }}"
           }
 
           pack self-contained
           pack framework-dependent
+          ls -la artifacts
 
       - name: Upload archives
         uses: actions/upload-artifact@v4
