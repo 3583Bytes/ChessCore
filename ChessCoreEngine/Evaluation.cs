@@ -118,9 +118,10 @@ namespace ChessEngine.Engine
 
                     if (position >= 8 && position <= 15)
                     {
+                        // White pawn on rank 7 — one step from promotion.
                         if (square.Piece.AttackedValue == 0)
                         {
-                            whitePawnCount[position % 8] += 50;
+                            whitePawnCount[position % 8] += 100;
 
                             if (square.Piece.DefendedValue != 0)
                                 whitePawnCount[position % 8] += 50;
@@ -128,10 +129,10 @@ namespace ChessEngine.Engine
                     }
                     else if (position >= 16 && position <= 23)
                     {
+                        // White pawn on rank 6.
                         if (square.Piece.AttackedValue == 0)
                         {
-                            whitePawnCount[position % 8] += 25;
-
+                            whitePawnCount[position % 8] += 50;
 
                             if (square.Piece.DefendedValue != 0)
                                 whitePawnCount[position % 8] += 25;
@@ -150,20 +151,21 @@ namespace ChessEngine.Engine
 
                     if (position >= 48 && position <= 55)
                     {
+                        // Black pawn on rank 2 (one step from promotion from black's POV).
                         if (square.Piece.AttackedValue == 0)
                         {
-                            blackPawnCount[position % 8] += 200;
+                            blackPawnCount[position % 8] += 100;
 
                             if (square.Piece.DefendedValue != 0)
                                 blackPawnCount[position % 8] += 50;
                         }
                     }
-                    //Pawns in 6th Row that are not attacked are worth more points.
                     else if (position >= 40 && position <= 47)
                     {
+                        // Black pawn on rank 3.
                         if (square.Piece.AttackedValue == 0)
                         {
-                            blackPawnCount[position % 8] += 100;
+                            blackPawnCount[position % 8] += 50;
 
                             if (square.Piece.DefendedValue != 0)
                                 blackPawnCount[position % 8] += 25;
@@ -512,70 +514,71 @@ namespace ChessEngine.Engine
                 board.Score -= 12;
             }
 
+            // Passed pawns: no enemy pawn on the same file OR either adjacent file.
             //Black Passed Pawns
-            if (blackPawnCount[0] >= 1 && whitePawnCount[0] == 0)
+            if (blackPawnCount[0] >= 1 && whitePawnCount[0] == 0 && whitePawnCount[1] == 0)
             {
                 board.Score -= blackPawnCount[0];
             }
-            if (blackPawnCount[1] >= 1 && whitePawnCount[1] == 0)
+            if (blackPawnCount[1] >= 1 && whitePawnCount[0] == 0 && whitePawnCount[1] == 0 && whitePawnCount[2] == 0)
             {
                 board.Score -= blackPawnCount[1];
             }
-            if (blackPawnCount[2] >= 1 && whitePawnCount[2] == 0)
+            if (blackPawnCount[2] >= 1 && whitePawnCount[1] == 0 && whitePawnCount[2] == 0 && whitePawnCount[3] == 0)
             {
                 board.Score -= blackPawnCount[2];
             }
-            if (blackPawnCount[3] >= 1 && whitePawnCount[3] == 0)
+            if (blackPawnCount[3] >= 1 && whitePawnCount[2] == 0 && whitePawnCount[3] == 0 && whitePawnCount[4] == 0)
             {
                 board.Score -= blackPawnCount[3];
             }
-            if (blackPawnCount[4] >= 1 && whitePawnCount[4] == 0)
+            if (blackPawnCount[4] >= 1 && whitePawnCount[3] == 0 && whitePawnCount[4] == 0 && whitePawnCount[5] == 0)
             {
                 board.Score -= blackPawnCount[4];
             }
-            if (blackPawnCount[5] >= 1 && whitePawnCount[5] == 0)
+            if (blackPawnCount[5] >= 1 && whitePawnCount[4] == 0 && whitePawnCount[5] == 0 && whitePawnCount[6] == 0)
             {
                 board.Score -= blackPawnCount[5];
             }
-            if (blackPawnCount[6] >= 1 && whitePawnCount[6] == 0)
+            if (blackPawnCount[6] >= 1 && whitePawnCount[5] == 0 && whitePawnCount[6] == 0 && whitePawnCount[7] == 0)
             {
                 board.Score -= blackPawnCount[6];
             }
-            if (blackPawnCount[7] >= 1 && whitePawnCount[7] == 0)
+            if (blackPawnCount[7] >= 1 && whitePawnCount[6] == 0 && whitePawnCount[7] == 0)
             {
                 board.Score -= blackPawnCount[7];
             }
 
             //White Passed Pawns
-            if (whitePawnCount[0] >= 1 && blackPawnCount[1] == 0)
+            if (whitePawnCount[0] >= 1 && blackPawnCount[0] == 0 && blackPawnCount[1] == 0)
             {
                 board.Score += whitePawnCount[0];
             }
-            if (whitePawnCount[1] >= 1 && blackPawnCount[1] == 0)
+            if (whitePawnCount[1] >= 1 && blackPawnCount[0] == 0 && blackPawnCount[1] == 0 && blackPawnCount[2] == 0)
             {
                 board.Score += whitePawnCount[1];
             }
-            if (whitePawnCount[2] >= 1 && blackPawnCount[2] == 0)
+            if (whitePawnCount[2] >= 1 && blackPawnCount[1] == 0 && blackPawnCount[2] == 0 && blackPawnCount[3] == 0)
             {
                 board.Score += whitePawnCount[2];
             }
-            if (whitePawnCount[3] >= 1 && blackPawnCount[3] == 0)
+            if (whitePawnCount[3] >= 1 && blackPawnCount[2] == 0 && blackPawnCount[3] == 0 && blackPawnCount[4] == 0)
             {
                 board.Score += whitePawnCount[3];
             }
-            if (whitePawnCount[4] >= 1 && blackPawnCount[4] == 0)
+            if (whitePawnCount[4] >= 1 && blackPawnCount[3] == 0 && blackPawnCount[4] == 0 && blackPawnCount[5] == 0)
             {
                 board.Score += whitePawnCount[4];
             }
-            if (whitePawnCount[5] >= 1 && blackPawnCount[5] == 0)
+            if (whitePawnCount[5] >= 1 && blackPawnCount[4] == 0 && blackPawnCount[5] == 0 && blackPawnCount[6] == 0)
             {
                 board.Score += whitePawnCount[5];
             }
-            if (whitePawnCount[6] >= 1 && blackPawnCount[6] == 0)
+            if (whitePawnCount[6] >= 1 && blackPawnCount[5] == 0 && blackPawnCount[6] == 0 && blackPawnCount[7] == 0)
             {
                 board.Score += whitePawnCount[6];
             }
-            if (whitePawnCount[7] >= 1 && blackPawnCount[7] == 0)
+            if (whitePawnCount[7] >= 1 && blackPawnCount[6] == 0 && blackPawnCount[7] == 0)
             {
                 board.Score += whitePawnCount[7];
             }
