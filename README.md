@@ -1,10 +1,21 @@
 # ChessCore
 
-UCI-compatible chess engine written in C# / .NET 8.
+UCI-compatible chess engine written in C# / .NET 10.
 
 ChessCore implements the [Universal Chess Interface](https://backscattering.de/chess/uci/) protocol on stdin/stdout, so it plugs into any modern chess GUI — [Arena](http://www.playwitharena.de/), [Cute Chess](https://cutechess.com/), [BanksiaGUI](https://banksiagui.com/), [Nibbler](https://github.com/rooklift/nibbler), the ChessBase family, [lichess-bot](https://github.com/lichess-bot-devs/lichess-bot), etc. Earlier versions spoke the XBoard/WinBoard protocol; that has been replaced by UCI as of v1.1.
 
-## Quick start
+## Download a prebuilt binary
+
+Each tagged release on the [Releases page](https://github.com/3583Bytes/ChessCore/releases) ships with prebuilt single-file executables for Windows, Linux, and macOS (both Intel and Apple Silicon). Two flavors per platform:
+
+- **`ChessCore-<platform>-self-contained.{zip,tar.gz}`** — bundles the .NET 10 runtime inside the binary (~60–70 MB). Nothing else needed on the target machine; download, extract, run.
+- **`ChessCore-<platform>-framework-dependent.{zip,tar.gz}`** — small (~5 MB) but requires the .NET 10 runtime already installed on the target machine. Use this if disk space matters or you already have .NET.
+
+A `SHA256SUMS.txt` is published alongside each release so you can verify downloads.
+
+> macOS users: binaries are not Apple-codesigned (no Developer ID). On first launch, right-click the file and choose **Open** to bypass Gatekeeper.
+
+## Quick start (build from source)
 
 ```powershell
 dotnet build ChessCore.sln -nologo
@@ -262,6 +273,20 @@ For scheduled/nightly runs, include full validation:
 dotnet test ChessCore.sln -nologo
 ```
 
+## Cutting a release
+
+The `.github/workflows/release.yml` workflow builds platform binaries automatically. To ship a new version:
+
+1. Bump `<Version>` in `ChessCore/ChessCore.csproj` (this is the **only** place the version lives — `id name` in UCI and the `compiler` command both read it from assembly metadata at runtime).
+2. Commit and push to `master`.
+3. Tag the commit and push the tag:
+    ```powershell
+    git tag v1.2.0
+    git push origin v1.2.0
+    ```
+4. The workflow builds Windows / Linux / macOS-x64 / macOS-arm64 binaries (each in self-contained and framework-dependent flavors), generates `SHA256SUMS.txt`, and publishes a GitHub Release with auto-generated notes.
+
+To rerun the workflow against an existing tag without pushing a new one, use the **Run workflow** button on the Actions tab and supply the tag name.
 
 # About
 

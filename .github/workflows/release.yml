@@ -1,0 +1,124 @@
+name: Release
+
+# Fires when a `v*` tag is pushed (e.g. `git tag v1.2.0 && git push --tags`) or
+# can be triggered manually from the Actions tab.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name for the release (e.g. v1.1.0). Must already exist on a commit.'
+        required: true
+        type: string
+
+permissions:
+  contents: write  # required to create a GitHub Release and upload assets
+
+jobs:
+  build:
+    name: Build ${{ matrix.rid }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: win-x64,   ext: '.exe', archive: 'zip' }
+          - { rid: linux-x64, ext: '',     archive: 'tar.gz' }
+          - { rid: osx-x64,   ext: '',     archive: 'tar.gz' }
+          - { rid: osx-arm64, ext: '',     archive: 'tar.gz' }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ChessCore.sln
+
+      - name: Run fast tests
+        # Skip the slow depth-5 perft on every release build — it ran on merge to master.
+        # We still want a correctness gate for the runtime + RID combination, so run the fast suite.
+        run: dotnet test ChessCore.sln -c Release --no-restore --filter "TestCategory!=Slow"
+
+      - name: Publish self-contained (no .NET required on target)
+        run: |
+          dotnet publish ChessCore/ChessCore.csproj \
+            -c Release -r ${{ matrix.rid }} \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:DebugType=embedded \
+            -o publish/self-contained
+
+      - name: Publish framework-dependent (smaller; requires .NET 10 runtime on target)
+        run: |
+          dotnet publish ChessCore/ChessCore.csproj \
+            -c Release -r ${{ matrix.rid }} \
+            --self-contained false \
+            -p:PublishSingleFile=true \
+            -p:DebugType=embedded \
+            -o publish/framework-dependent
+
+      - name: Package archives
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+
+          pack() {
+            local variant="$1"      # self-contained | framework-dependent
+            local stem="ChessCore-${{ matrix.rid }}-${variant}"
+            local exe="publish/${variant}/ChessCore${{ matrix.ext }}"
+            test -f "$exe"  # fail fast if publish didn't produce a single file
+            cp "$exe" "ChessCore${{ matrix.ext }}"
+
+            if [ "${{ matrix.archive }}" = "zip" ]; then
+              zip -9 "artifacts/${stem}.zip" "ChessCore${{ matrix.ext }}"
+            else
+              tar -czf "artifacts/${stem}.tar.gz" "ChessCore${{ matrix.ext }}"
+            fi
+            rm "ChessCore${{ matrix.ext }}"
+          }
+
+          pack self-contained
+          pack framework-dependent
+
+      - name: Upload archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChessCore-${{ matrix.rid }}
+          path: artifacts/*
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate SHA-256 checksums
+        run: |
+          set -euo pipefail
+          cd artifacts
+          sha256sum * | tee SHA256SUMS.txt
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event.inputs.tag || github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/*.zip
+            artifacts/*.tar.gz
+            artifacts/SHA256SUMS.txt
