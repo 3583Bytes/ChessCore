@@ -1,10 +1,11 @@
+using System;
 
 namespace ChessEngine.Engine
 {
     internal static class Evaluation
     {
-        private static short[] blackPawnCount;
-        private static short[] whitePawnCount;
+        private static readonly short[] blackPawnCount = new short[8];
+        private static readonly short[] whitePawnCount = new short[8];
       
         private static readonly short[] PawnTable = new short[]
         {
@@ -317,8 +318,8 @@ namespace ChessEngine.Engine
             byte knightCount = 0;
 
 
-            blackPawnCount = new short[8];
-            whitePawnCount = new short[8];
+            Array.Clear(blackPawnCount, 0, 8);
+            Array.Clear(whitePawnCount, 0, 8);
 
             for (byte x = 0; x < 64; x++)
             {
@@ -335,7 +336,9 @@ namespace ChessEngine.Engine
 
                     if (square.Piece.PieceType == ChessPieceType.King)
                     {
-                        if (x != 59 && x != 60)
+                        // Skip pawn-wall scoring when the king is still on its starting square (e1);
+                        // an uncastled king in the center doesn't meaningfully benefit from a shelter.
+                        if (x != 60)
                         {
                             int pawnPos = x - 8;
 
@@ -359,7 +362,8 @@ namespace ChessEngine.Engine
 
                     if (square.Piece.PieceType == ChessPieceType.King)
                     {
-                        if (x != 3 && x != 4)
+                        // Skip pawn-wall scoring when the king is still on its starting square (e8).
+                        if (x != 4)
                         {
                             int pawnPos = x + 8;
 
@@ -411,18 +415,7 @@ namespace ChessEngine.Engine
                 return;
             }
 
-            if (board.EndGamePhase)
-            {
-                if (board.BlackCheck)
-                {
-                    board.Score += 10;
-                }
-                else if (board.WhiteCheck)
-                {
-                    board.Score -= 10;
-                }
-            }
-            else
+            if (!board.EndGamePhase)
             {
                 if (!board.WhiteCanCastle && !board.WhiteCastled)
                 {
