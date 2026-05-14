@@ -950,6 +950,7 @@ namespace ChessEngine.Engine // Reverted to original namespace
 			PieceValidMoves.GenerateValidMoves(ChessBoard);
 		
             NodesSearched = 0;
+            NodesQuiessence = 0;
 			
 			var resultBoards = new ResultBoards();
             resultBoards.Positions = new List<Board>();

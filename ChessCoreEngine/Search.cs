@@ -213,7 +213,7 @@ namespace ChessEngine.Engine
             //End Main Search with Quiescence
             if (depth == 0)
             {
-                if (!extended && examineBoard.BlackCheck || examineBoard.WhiteCheck)
+                if (!extended && (examineBoard.BlackCheck || examineBoard.WhiteCheck))
                 {
                     depth++;
                     extended = true;
@@ -353,7 +353,8 @@ namespace ChessEngine.Engine
 
             foreach (Position move in positions)
             {
-                if (StaticExchangeEvaluation(examineBoard.Squares[move.DstPosition]) >= 0)
+                // Skip captures that look like material losses; keep equal/winning ones.
+                if (StaticExchangeEvaluation(examineBoard.Squares[move.DstPosition]) < 0)
                 {
                     continue;
                 }
