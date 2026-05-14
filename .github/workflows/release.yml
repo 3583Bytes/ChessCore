@@ -15,6 +15,14 @@ on:
 permissions:
   contents: write  # required to create a GitHub Release and upload assets
 
+env:
+  # GitHub is migrating JS actions to Node 24 in June 2026. Opt in now to silence the deprecation
+  # warning emitted by actions/checkout@v4, actions/setup-dotnet@v4, etc.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Don't waste runner time on telemetry pings or first-run welcome output.
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
 jobs:
   build:
     name: Build ${{ matrix.rid }}
@@ -66,8 +74,10 @@ jobs:
 
       - name: Package archives
         run: |
-          set -euo pipefail
+          set -euxo pipefail   # -x traces every command so failures pinpoint the offending line
           mkdir -p artifacts
+          ls -la publish/self-contained
+          ls -la publish/framework-dependent
 
           pack() {
             local variant="$1"      # self-contained | framework-dependent
