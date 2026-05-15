@@ -26,6 +26,7 @@ namespace ChessEngine.Engine
             {
                 openingMove.Moves.Add(new MoveContent(m));
             }
+            openingBook.Add(openingMove);
             openingMove = new OpeningMove();
             openingMove.StartingFEN = @"rnbqkbnr/ppp1pppp/8/3p4/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq -";
             moveLine = @"g7g6";
@@ -13845,12 +13846,6 @@ namespace ChessEngine.Engine
             openingMove = new OpeningMove();
             openingMove.StartingFEN = @"r2q1rk1/1bppbpp1/p1n2n1p/1p2p3/4P3/1B1P1N1P/PPP2PP1/RNBQR1K1 w - -";
             moveLine = @"b1c3{5}";
-            moves = moveLine.Split(' ');
-            foreach (string m in moves)
-            {
-                openingMove.Moves.Add(new MoveContent(m));
-            }
-            openingBook.Add(openingMove);
             moves = moveLine.Split(' ');
             foreach (string m in moves)
             {

@@ -19,27 +19,41 @@ JIT warmup and OS scheduling jitter; the median of five is stable enough.
 
 ## Current baseline
 
-Captured on .NET 10.0.7 / Windows 11 x64 after the search bug fixes
-(commit `7ce9e74`: inverted SEE, check-extension precedence,
-`NodesQuiessence` reset) **and** the evaluation fixes in `Evaluation.cs`
-(a-file passed-pawn typo, symmetric pawn-advance weights, passed-pawn
-definition now requires no enemy pawn on either adjacent file).
+Captured on .NET 10.0.7 / Windows 11 x64 after a round of eval/search cleanup
+and book fixes on top of `cdbe753`:
+
+- `Evaluation.cs`: removed duplicate endgame-check bonus, fixed pawn-wall king
+  exclusion (e1/e8 only, not d1/d8), pooled the per-call `pawnCount` arrays
+  (no allocation per eval), corrected the insufficient-material classifier
+  (KNvKN and KBvKB are now flagged insufficient), removed dead mate-sentinel
+  branch (mate is owned by `Search`), tightened bishop-pair bonus to fire
+  exactly once, and rewrote the black-piece PST mirror as `position ^ 56`.
+- `Search.cs`: removed the root-level "return on first mate found"
+  short-circuit so alpha-beta's depth-adjusted mate scores actually pick the
+  shortest mate. Side-effect: `plyDepthReached` increases by 1 in mate-bearing
+  bench positions (the old short-circuit returned before the final `++`).
+- `Engine.cs`: `InitiateBoard` now resets `MoveHistory` / `CurrentGameBook` /
+  undo slots — previously stale across UCI `position` commands, which made
+  the engine emit `bestmove 0000` after a few moves of normal play.
+- `Book.cs`: the startpos entry was constructed but never `Add`-ed; first move
+  from `position startpos` now hits the book instead of running a search.
+  Removed a duplicate `Add` at the very end of the book.
 
 ```
-total nodes 920_896    (deterministic — same across all runs)
-total time  ~6_700 ms  (median; range 5.9–8.2 s)
-total NPS   ~140_000   (median; range 112K–155K)
+total nodes 792_281    (deterministic — same across all runs)
+total time  ~3_300 ms  (median; range 2.9–3.3 s)
+total NPS   ~243_000   (median; range 239K–276K)
 ```
 
 Per-position breakdown from one representative run:
 
 ```
-Start         depth 6 nodes 132105 time  903ms nps  146295
-Kiwipete      depth 5 nodes 404847 time 2677ms nps  151231
-Endgame       depth 6 nodes  35360 time   87ms nps  406436
-BK.01         depth 4 nodes 345217 time 2241ms nps  154045
-KRk endgame   depth 7 nodes    981 time    1ms (sub-ms — discard NPS)
-Promotion     depth 6 nodes   2386 time    2ms (sub-ms — discard NPS)
+Start         depth 0 nodes      0 time   12ms nps        0  (book hit)
+Kiwipete      depth 5 nodes 407514 time 1742ms nps   233934
+Endgame       depth 6 nodes  35325 time   50ms nps   706500
+BK.01         depth 5 nodes 346075 time 1349ms nps   256541
+KRk endgame   depth 7 nodes    981 time    0ms (sub-ms — discard NPS)
+Promotion     depth 7 nodes   2386 time    1ms (sub-ms — discard NPS)
 ```
 
 > **Note**: per-position numbers are useful for spotting regressions in a *single*
@@ -52,10 +66,16 @@ Promotion     depth 6 nodes   2386 time    2ms (sub-ms — discard NPS)
 | Commit / state | Total nodes | Total time (median) |
 |---|---|---|
 | Post-search-fixes (`7ce9e74`) | 999,890 | ~9.5 s |
-| Post-eval-fixes (current) | 920,896 | ~6.7 s |
+| Post-eval-fixes (`cdbe753`) | 920,896 | ~6.7 s |
+| Post-eval-cleanup + book fixes (current) | 792,281 | ~3.3 s |
 
-The eval fixes shrank the tree ~8% — same depth, fewer positions visited because
-the evaluation produces more decisive scores and alpha-beta finds more cutoffs.
+The biggest chunk of the latest drop (~132K nodes) is the `Start` bench position
+becoming a book hit instead of a depth-6 search — measured search performance on
+the *other* positions actually moved by only a few thousand nodes total
+(BK.01 +858, Kiwipete +2667, Endgame −35). The time-budget improvement (~6.7s →
+~3.3s) reflects both the missing Start search and the per-eval allocation cleanup
+removing `new short[8]` × 2 from the hot path.
+
 Bench measures node count and raw speed, **not playing strength**: confirm with
 a head-to-head Cute Chess match before treating the change as a strength gain.
 
